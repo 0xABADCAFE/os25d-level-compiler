@@ -2,6 +2,20 @@
 
 class ZoneParser {
 
+  private
+    /** @var ILog $oLog */
+    $oLog              = null,
+    
+    /** @var Zone[] $aZones */
+    $aZones            = null,
+    
+    /** @var ZoneDataValidator[] $aZoneValidators */
+    $aZoneValidators   = null,
+    
+    /** @var ConnectionMatrix $oConnectionMatrix */
+    $oConnectionMatrix = null
+  ;
+  
   public static function get() {
     return new self;
   }
@@ -105,7 +119,7 @@ class ZoneParser {
 
     $this->oLog->info("Beginning Zone Connection Analysis");
 
-    $this->oConnectionMatrix = new ConnectionMatrix();
+    $this->oConnectionMatrix = new ConnectionMatrix(count($this->aZones));
     foreach ($this->aZones as $oZoneA) {
       $aEdgesA = $oZoneA->getEdgesRev();
       foreach ($oZoneA->getZonesForContactTest() as $oZoneB) {
@@ -165,17 +179,4 @@ class ZoneParser {
     return $aFiles;
   }
 
-  private
-    /** @var ILog $oLog */
-    $oLog              = null,
-    
-    /** @var Zone[] $aZones */
-    $aZones            = null,
-    
-    /** @var ZoneDataValidator[] $aZoneValidators */
-    $aZoneValidators   = null,
-    
-    /** @var ConnectionMatrix $oConnectionMatrix */
-    $oConnectionMatrix = null
-  ;
 }

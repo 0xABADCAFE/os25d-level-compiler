@@ -20,6 +20,10 @@ interface IZoneLimits {
   ;      
 }
 
+/**
+ * ZoneUtil class. Helper utility class for Zone tasks.
+ *
+ */
 class ZoneUtil implements IZoneLimits {
   public static function intOrdinate($fVal) {
     return self::I_BIAS + (int)($fVal * self::F_SCALE);
@@ -27,9 +31,18 @@ class ZoneUtil implements IZoneLimits {
 }
 
 /**
- * Simple, axis aligned bounding box type that takes the .
+ * BoundingBox class. Simple, axis aligned bounding box type that takes the .
  */
 class BoundingBox {
+  private
+    $iMinX,
+    $iMinY,
+    $iMinZ,
+    $iMaxX,
+    $iMaxY,
+    $iMaxZ
+  ;
+  
   public function __construct(stdClass $oBox) {
     $this->iMinX = ZoneUtil::intOrdinate($oBox->min->x);
     $this->iMinY = ZoneUtil::intOrdinate($oBox->min->y);
@@ -59,14 +72,7 @@ class BoundingBox {
     );
   }
 
-  private
-    $iMinX,
-    $iMinY,
-    $iMinZ,
-    $iMaxX,
-    $iMaxY,
-    $iMaxZ
-  ;
+
 }
 
 /**
@@ -75,6 +81,15 @@ class BoundingBox {
  */
 class Zone implements IZoneLimits, IBinaryExportable {
 
+  private
+    $oJRep      = null,
+    $oBBox      = null,
+    $aOrds      = [],
+    $aEdges     = [],
+    $aEdgesRev  = [],
+    $aTestZones = []
+  ;
+  
   public function __construct(stdClass $oJRep) {
     $this->oJRep = $oJRep;
     $this->oBBox = new BoundingBox($this->oJRep->bounds);
@@ -191,15 +206,5 @@ class Zone implements IZoneLimits, IBinaryExportable {
       $this->aEdgesRev[$sKey] = $iE;
     }
   }
-  
-  private
-    $oJRep      = null,
-    $oBBox      = null,
-    $aOrds      = [],
-    $aEdges     = [],
-    $aEdgesRev  = [],
-    $aTestZones = []
-  ;
-
 }
 

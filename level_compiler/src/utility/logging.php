@@ -24,12 +24,27 @@ interface ILog {
 }
 
 /**
- * Simple implementation of ILog that writes to stdout and allows each severity to be
+ * SimpleLog class. Minimal implementation of ILog that writes to stdout and allows each severity to be
  * individually toggled.
  */
 
 class SimpleLog implements ILog {
 
+  private
+    $fMark,
+    $iLog,
+    $sLast,
+    $iTimes
+  ;
+  
+  private static $aLevel = [
+    self::I_DEBUG  => 'D',
+    self::I_INFO   => 'I',
+    self::I_NOTICE => 'N',
+    self::I_WARN   => 'W',
+    self::I_ERROR  => 'E',
+  ];
+  
   public function __construct($iLog = ILog::I_ALL) {
     $this->fMark = microtime(true);
     $this->iLog  = (int)$iLog;
@@ -73,28 +88,4 @@ class SimpleLog implements ILog {
     return $this;
   }
 
-  private
-    $fMark,
-    $iLog,
-    $sLast,
-    $iTimes
-  ;
-  
-  private static $aLevel = [
-    self::I_DEBUG  => 'D',
-    self::I_INFO   => 'I',
-    self::I_NOTICE => 'N',
-    self::I_WARN   => 'W',
-    self::I_ERROR  => 'E',
-  ];
 }
-
-/*
-$oLog = new SimpleLog();
-$oLog
-  ->error('Test Error')
-  ->warn('Test Warning')
-  ->notice('Test Notice')
-  ->info('Test Info')
-  ->debug('Test Debug');
-*/

@@ -8,6 +8,12 @@
 
 abstract class ZoneDataValidator implements IZoneLimits {
 
+  /** @var ILog $oLog */
+  protected $oLog    = null;
+
+  /** @var stdClass $oCommon */
+  protected $oCommon = null;
+  
   public function __construct(ILog $oLog) {
     $this->oLog = $oLog;
   }
@@ -66,11 +72,7 @@ abstract class ZoneDataValidator implements IZoneLimits {
     }
   }
 
-  /** @var ILog $oLog */
-  protected $oLog    = null;
 
-  /** @var stdClass $oCommon */
-  protected $oCommon = null;
 }
 
 /**

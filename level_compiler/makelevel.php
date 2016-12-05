@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Level Compiler, main program.
+ */
+ 
+error_reporting(-1);
+
 $aOpts = getopt('d:o:');
 
 if (!isset($aOpts['d'])) {
@@ -19,10 +25,11 @@ $oParser = ZoneParser::get()
 $aZones = $oParser->getZoneList();
 foreach ($aZones as $oZone) {
   print($oZone->describe() . "\n");
-
   print(bin2hex(BinaryExport::export($oZone)) . "\n");
 }
 
 $oMatrix = $oParser->getConnectionMatrix();
 $oMatrix->normalise();
+
 print_r($oMatrix);
+print(bin2hex(BinaryExport::export($oMatrix)) . "\n");

@@ -2,5 +2,4 @@
 
 class Vector2D {
 
-
 }

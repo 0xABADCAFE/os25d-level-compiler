@@ -1,6 +1,8 @@
 <?php
-error_reporting(-1);
 
+/**
+ * Main include. We're not using an autoloader for a project this size.
+ */
 require_once 'utility/logging.php';
 require_once 'error/io_exceptions.php';
 require_once 'error/zone_exceptions.php';
