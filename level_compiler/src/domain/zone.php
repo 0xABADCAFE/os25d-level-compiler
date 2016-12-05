@@ -108,7 +108,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
   }
   
   public function getBinaryIdent() {
-    return 'ZONE';
+    return 'ZoneData';
   }
 
   /**

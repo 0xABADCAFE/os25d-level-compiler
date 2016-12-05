@@ -8,12 +8,16 @@ error_reporting(-1);
 
 $aOpts = getopt('d:o:');
 
-if (!isset($aOpts['d'])) {
+if (
+  !isset($aOpts['d']) ||
+  !isset($aOpts['o'])
+) {
   echo "Usage makelevel.php -d <level directory> -o <output file>\n";
   exit();
 }
 
-$sLevelDir = trim($aOpts['d']);
+$sLevelDir   = $aOpts['d'];
+$sOutputFile = $aOpts['o'];
 
 require_once 'src/include.php';
 
@@ -25,11 +29,16 @@ $oParser = ZoneParser::get()
 $aZones = $oParser->getZoneList();
 foreach ($aZones as $oZone) {
   print($oZone->describe() . "\n");
-  print(bin2hex(BinaryExport::export($oZone)) . "\n");
 }
 
 $oMatrix = $oParser->getConnectionMatrix();
 $oMatrix->normalise();
 
 print_r($oMatrix);
-print(bin2hex(BinaryExport::export($oMatrix)) . "\n");
+
+$oBinFile = new BinaryExportFile($sOutputFile);
+foreach ($aZones as $oZone) {
+  $oBinFile->export($oZone);
+}
+$oBinFile->export($oMatrix);
+$oBinFile->close();

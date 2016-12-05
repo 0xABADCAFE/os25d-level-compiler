@@ -43,7 +43,7 @@ class ConnectionMatrix implements IBinaryExportable {
   
   /** @return char[4] */
   public function getBinaryIdent() {
-    return 'CMTX';
+    return 'ZCMatrix';
   }
   
   public function getConnection($iFromZoneId, $iToZoneId) {
