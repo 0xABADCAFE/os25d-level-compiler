@@ -142,6 +142,7 @@ class ZoneParser {
         }
       }    
     }
+    $this->oConnectionMatrix->normalise();
     $this->oLog->info("Completed Zone Connection Analysis");
     return $this;
   }

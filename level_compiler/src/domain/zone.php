@@ -34,7 +34,7 @@ class ZoneUtil implements IZoneLimits {
  * BoundingBox class. Simple, axis aligned bounding box type that takes the .
  */
 class BoundingBox {
-  private
+  public
     $iMinX,
     $iMinY,
     $iMinZ,
@@ -71,8 +71,6 @@ class BoundingBox {
       $this->iMaxX, $this->iMaxY, $this->iMaxZ
     );
   }
-
-
 }
 
 /**
@@ -84,6 +82,10 @@ class Zone implements IZoneLimits, IBinaryExportable {
   private
     $oJRep      = null,
     $oBBox      = null,
+    $iFloorBase = 0,
+    $iFloorExt  = 0,
+    $iCeilBase  = 0,
+    $iCeilExt   = 0,
     $aOrds      = [],
     $aEdges     = [],
     $aEdgesRev  = [],
@@ -95,16 +97,38 @@ class Zone implements IZoneLimits, IBinaryExportable {
     $this->oBBox = new BoundingBox($this->oJRep->bounds);
     $this->buildOrdinates();
     $this->buildEdges();
+    $this->buildFlats();
   }
 
   public function getBinaryData() {
-    $aU16Data = array_map(
-      function($iOrd) {
-        return pack('n', $iOrd);
-      },
-      $this->aOrds
-    );
-    return implode('', $aU16Data);
+  
+    $sData = pack(
+      'n*',
+      // Unique ID, 0-1999
+      $this->getRuntimeId(),
+
+      // Number of points, 3-16
+      count($this->aOrds),
+
+      // Area Bounds      
+      $this->oBBox->iMinX,
+      $this->oBBox->iMaxX,
+      $this->oBBox->iMinY,
+      $this->oBBox->iMaxY,
+      
+      // Floor
+      $this->iFloorBase,
+      $this->iFloorExt,
+      
+      // Ceiling
+      $this->iCeilBase,
+      $this->iCeilExt
+    ); 
+
+    foreach ($this->aOrds as $iOrd) {
+      $sData .= pack('n', $iOrd);
+    }
+    return $sData;
   }
   
   public function getBinaryIdent() {
@@ -204,6 +228,24 @@ class Zone implements IZoneLimits, IBinaryExportable {
         $this->aOrds[$i + 1]
       );
       $this->aEdgesRev[$sKey] = $iE;
+    }
+  }
+
+  private function buildFlats() {
+    $this->iFloorBase = ZoneUtil::intOrdinate($this->oJRep->floor->baseHeight);
+
+    if (isset($this->oJRep->floor->lift)) {
+      $this->iFloorExt  = ZoneUtil::intOrdinate($this->oJRep->floor->lift->extHeight);
+    } else {
+      $this->iFloorExt = $this->iFloorBase;
+    }
+    
+    $this->iCeilBase = ZoneUtil::intOrdinate($this->oJRep->ceiling->baseHeight);
+    
+    if (isset($this->oJRep->ceiling->lift)) {
+      $this->iCeilExt = ZoneUtil::intOrdinate($this->oJRep->ceiling->lift->extHeight);
+    } else {
+      $this->iCeilExt = $this->iCeilBase;
     }
   }
 }

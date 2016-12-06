@@ -32,9 +32,6 @@ foreach ($aZones as $oZone) {
 }
 
 $oMatrix = $oParser->getConnectionMatrix();
-$oMatrix->normalise();
-
-print_r($oMatrix);
 
 $oBinFile = new BinaryExportFile($sOutputFile);
 foreach ($aZones as $oZone) {

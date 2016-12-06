@@ -58,6 +58,9 @@ class BinaryExportFile {
       $iLength,
       $iCheck
     ) . $sBinary;
+
+    echo bin2hex($sPayload), "\n";
+
     if (!fwrite($this->rFile, $sPayload)) {
       throw new IOWriteException();
     }
