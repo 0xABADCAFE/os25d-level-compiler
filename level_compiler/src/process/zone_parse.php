@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * ZoneParser. Main entrypoint for loading, validating and normalising zone editor data.
+ */
 class ZoneParser {
 
   private

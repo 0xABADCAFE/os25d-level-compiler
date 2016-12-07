@@ -21,6 +21,7 @@
       ],
       "floor": {
         "baseHeight": 0.00,
+        "damageInfo": null,
         "liftInfo":   null
       },
       "ceiling": {
@@ -30,7 +31,7 @@
     },
     
     {
-      "comment": "Large square room at basement level with lift on centre south wall",
+      "comment": "Large square room at basement level with sunken hot floor and lift on centre south wall",
       "points": [
         [ 0.00,  0.00], [ 4.00,  0.00], [ 6.00,  0.00],
         [10.00,  0.00], [10.00,  5.00],
@@ -38,8 +39,12 @@
         [ 0.00, 10.00], [ 0.00,  5.00]
       ],
       "floor": {
-        "baseHeight": -5.50,
-        "liftInfo":   null
+        "baseHeight": -5.75,
+        "liftInfo":   null,
+        "damageInfo": {
+          "type": "DAMAGE_HEAT",
+          "rate": 10.00
+        }
       },
       "ceiling": {
         "baseHeight": -2.00,
@@ -50,17 +55,24 @@
     {
       "comment": "Small square lift platform connecting rooms by south wall",
       "points": [
-        [ 4.001, -2.00], [ 6.00, -2.00],
-        [ 6.00,  0.001], [ 4.00,  0.00]
+        [ 4.00, -2.00], [ 6.00, -2.00],
+        [ 6.00,  0.00], [ 4.00,  0.00]
       ],
       "floor": {
         "baseHeight": -5.50,
         "liftInfo": {
-          "extHeight": 0.00
+          "extHeight": 0.00,
+          "raiseSpeed": 1.50,
+          "lowerSpeed": 1.50,
+          "initPos": "POS_TOP",
+          "ifBlocked": "BLOCK_REVERSE",
+          "triggers": [
+            "PLAYER_ENTER"
+          ]
         }
       },
       "ceiling": {
-        "baseHeight": 2.501,
+        "baseHeight": 2.50,
         "liftInfo":   null
       }    
     },
@@ -80,22 +92,8 @@
         "liftInfo":   null
       }    
     
-    },
-    
-    {
-      "comment": "Impossible!",
-      "points": [
-        [15.00, 5.00], [15.00, 15.00], [5.00, 15.00], [5.00, 5.00]
-      ],
-      "floor": {
-        "baseHeight": 0.00,
-        "liftInfo":   null
-      },
-      "ceiling": {
-        "baseHeight": 2.50,
-        "liftInfo":   null
-      }
     }
+    
 
   ]
 }

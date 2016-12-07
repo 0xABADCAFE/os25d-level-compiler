@@ -66,7 +66,7 @@ class BoundingBox {
 
   public function describe() {
     return sprintf(
-      "Bounds:{[%5d, %5d, %5d], [%5d, %5d, %5d]}",
+      "[%5d, %5d, %5d], [%5d, %5d, %5d]",
       $this->iMinX, $this->iMinY, $this->iMinZ,
       $this->iMaxX, $this->iMaxY, $this->iMaxZ
     );
@@ -184,9 +184,10 @@ class Zone implements IZoneLimits, IBinaryExportable {
 
   public function describe() {
     return sprintf(
-      "Zone %d (%s) : %s",
+      "Zone %d\n\tInfo: %s\n\tBounds:%s\n\tPoints: %s",
       $this->oJRep->runtimeId,
       $this->oJRep->comment,
+      $this->oBBox->describe(),
       json_encode($this->oJRep->points)
     );
   }
@@ -234,16 +235,16 @@ class Zone implements IZoneLimits, IBinaryExportable {
   private function buildFlats() {
     $this->iFloorBase = ZoneUtil::intOrdinate($this->oJRep->floor->baseHeight);
 
-    if (isset($this->oJRep->floor->lift)) {
-      $this->iFloorExt  = ZoneUtil::intOrdinate($this->oJRep->floor->lift->extHeight);
+    if (isset($this->oJRep->floor->liftInfo)) {
+      $this->iFloorExt  = ZoneUtil::intOrdinate($this->oJRep->floor->liftInfo->extHeight);
     } else {
       $this->iFloorExt = $this->iFloorBase;
     }
     
     $this->iCeilBase = ZoneUtil::intOrdinate($this->oJRep->ceiling->baseHeight);
     
-    if (isset($this->oJRep->ceiling->lift)) {
-      $this->iCeilExt = ZoneUtil::intOrdinate($this->oJRep->ceiling->lift->extHeight);
+    if (isset($this->oJRep->ceiling->liftInfo)) {
+      $this->iCeilExt = ZoneUtil::intOrdinate($this->oJRep->ceiling->liftInfo->extHeight);
     } else {
       $this->iCeilExt = $this->iCeilBase;
     }
