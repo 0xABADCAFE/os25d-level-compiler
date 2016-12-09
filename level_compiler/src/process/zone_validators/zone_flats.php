@@ -38,17 +38,6 @@ abstract class ZoneFlatDefinitionValidator extends ZoneDataValidator implements 
   }
 
   protected function validateLiftInfo($oFlat, $fOffsetZ, $sMsg) {
-/*
-          "liftInfo": {
-          "extHeight": 0.00,
-          "raiseSpeed": 1.50,
-          "lowerSpeed": 1.50,
-          "initPos": "POS_TOP",
-          "ifBlocked": "BLOCK_REVERSE",
-          "triggers": [
-            "PLAYER_ENTER"
-          ]
-*/
     $oLift = $oFlat->liftInfo;
     if (
       !isset($oLift->extHeight) ||
@@ -108,6 +97,10 @@ abstract class ZoneFlatDefinitionValidator extends ZoneDataValidator implements 
       throw new MissingRequiredEntityException($sMsg . 'missing or invalid blocked');    
     }    
     $oLift->iBlocked = LiftBlocked::fromString($oLift->blocked)->value();
+
+
+    // TODO - triggers
+
     $this->oLog->debug($sMsg . "lift definition OK");    
   }
 }

@@ -72,7 +72,6 @@ abstract class ZoneDataValidator implements IZoneLimits {
     }
   }
 
-
 }
 
 /**
@@ -90,6 +89,7 @@ interface IZoneSetValidator {
 }
 
 require_once 'zone_validators/zone_file.php';
+require_once 'zone_validators/zone_damage.php';
 require_once 'zone_validators/zone_flats.php';
 require_once 'zone_validators/zone_points.php';
 require_once 'zone_validators/zoneset_definition.php';

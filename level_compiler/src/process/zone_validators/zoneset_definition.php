@@ -40,13 +40,14 @@ class ZoneSetDefinitionValidator extends ZoneDataValidator implements IZoneSetVa
     // assign each visited Zone a unique runtime identifier
     static $iNextId = 0;
     foreach ($oZoneSet->zoneList as $i => $oZone) {
-      $oZone->runtimeId = $iNextId++;
+      $oZone->runtimeId = $iNextId;
       try {
         $sDesc = isset($oZone->comment) ? $oZone->comment : 'No description';
         $this->oLog->info("Beginning definition validation of Zone {$oZone->runtimeId} ($sDesc)");
         foreach ($this->aValidators as $oValidator) {
           $oValidator->validate($oZone);
         }
+        $iNextId++;
       } catch (ZoneValidationExceptionException $e) {
         $this->oLog->warn(
           "Caught unexpeted " . get_class($e) .
@@ -58,4 +59,3 @@ class ZoneSetDefinitionValidator extends ZoneDataValidator implements IZoneSetVa
     }
   }
 }
-
