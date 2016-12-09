@@ -17,11 +17,14 @@ abstract class ZoneFlatDefinitionValidator extends ZoneDataValidator implements 
       throw new MissingRequiredEntityException($sMsg . 'missing or invalid baseHeight');
     }
 
+    $fOffsetZ = 0;
+
     if (
       isset($this->oCommon->offset->z) &&
       is_float($this->oCommon->offset->z)
     ) {
-      $oFlat->baseHeight += $this->oCommon->offset->z;
+      $fOffsetZ = $this->oCommon->offset->z;
+      $oFlat->baseHeight += $fOffsetZ;
     }
 
     $this->assertRange($oFlat->baseHeight, $sMsg . 'baseHeight');
@@ -29,6 +32,83 @@ abstract class ZoneFlatDefinitionValidator extends ZoneDataValidator implements 
       $oFlat->baseHeight,
       $sMsg . 'discarding excess precision in baseHeight'
     );
+    if (isset($oFlat->liftInfo)) {
+      $this->validateLiftInfo($oFlat, $fOffsetZ, $sMsg);
+    }
+  }
+
+  protected function validateLiftInfo($oFlat, $fOffsetZ, $sMsg) {
+/*
+          "liftInfo": {
+          "extHeight": 0.00,
+          "raiseSpeed": 1.50,
+          "lowerSpeed": 1.50,
+          "initPos": "POS_TOP",
+          "ifBlocked": "BLOCK_REVERSE",
+          "triggers": [
+            "PLAYER_ENTER"
+          ]
+*/
+    $oLift = $oFlat->liftInfo;
+    if (
+      !isset($oLift->extHeight) ||
+      !is_float($oLift->extHeight)
+    ) {
+      throw new MissingRequiredEntityException($sMsg . 'missing or invalid extHeight');
+    }
+
+    $oLift->extHeight += $fOffsetZ;
+    
+    $this->assertRange($oLift->extHeight, $sMsg . 'extHeight');
+    $oLift->extHeight = $this->limitPrecision(
+      $oLift->extHeight,
+      $sMsg . 'discarding excess precision in extHeight'
+    );
+
+    $fMinSpeed = 1.0 / self::F_SCALE;
+    
+    if (
+      !isset($oLift->raiseSpeed) ||
+      !is_float($oLift->raiseSpeed) ||
+      $oLift->raiseSpeed < $fMinSpeed
+    ) {
+      throw new MissingRequiredEntityException($sMsg . 'missing or invalid raiseSpeed');
+    }
+
+    $oLift->raiseSpeed = $this->limitPrecision(
+      $oLift->raiseSpeed,
+      $sMsg . 'discarding excess precision in raiseSpeed'
+    );
+
+    if (
+      !isset($oLift->lowerSpeed) ||
+      !is_float($oLift->lowerSpeed) ||
+      $oLift->lowerSpeed < $fMinSpeed
+    ) {
+      throw new MissingRequiredEntityException($sMsg . 'missing or invalid lowerSpeed');
+    }
+
+    $oLift->lowerSpeed = $this->limitPrecision(
+      $oLift->lowerSpeed,
+      $sMsg . 'discarding excess precision in lowerSpeed'
+    );
+
+    if (
+      !isset($oLift->initPos) ||
+      !is_string($oLift->initPos)
+    ) {
+      throw new MissingRequiredEntityException($sMsg . 'missing or invalid initPos');    
+    }    
+    $oLift->iInitPos = LiftPosition::fromString($oLift->initPos)->value();
+
+    if (
+      !isset($oLift->blocked) ||
+      !is_string($oLift->blocked)
+    ) {
+      throw new MissingRequiredEntityException($sMsg . 'missing or invalid blocked');    
+    }    
+    $oLift->iBlocked = LiftBlocked::fromString($oLift->blocked)->value();
+    $this->oLog->debug($sMsg . "lift definition OK");    
   }
 }
 
@@ -46,8 +126,10 @@ class ZoneFloorDefinitionValidator extends ZoneFlatDefinitionValidator {
       throw new MissingRequiredEntityException("Zone {$oZone->runtimeId} floor definition missing");
     }
     $this->validateFlat($oZone->floor, "Zone {$oZone->runtimeId} floor ");
+
     $this->oLog->debug("Zone {$oZone->runtimeId} floor OK");
   }
+
 }
 
 /**

@@ -9,7 +9,7 @@ interface IZoneLimits {
     F_MIN_ORDINATE = -325.0,
     F_MAX_ORDINATE = 325.0,
     I_PRECISION    = 2,
-
+    
     // Points per zone limits
     I_MIN_POINTS   = 3,
     I_MAX_POINTS   = 16,
