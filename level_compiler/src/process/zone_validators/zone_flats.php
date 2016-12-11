@@ -8,6 +8,8 @@
  */ 
 
 abstract class ZoneFlatDefinitionValidator extends ZoneDataValidator implements ISingleZoneValidator {
+
+  use TEnvDamageValidator;
   
   protected function validateFlat(stdClass $oFlat, $sMsg) {
     if (
@@ -34,6 +36,11 @@ abstract class ZoneFlatDefinitionValidator extends ZoneDataValidator implements 
     );
     if (isset($oFlat->liftInfo)) {
       $this->validateLiftInfo($oFlat, $fOffsetZ, $sMsg);
+    }
+
+    if (isset($oFlat->contactDamage)) {
+      $this->validateEnvDamage($oFlat->contactDamage, $sMsg);
+      $this->oLog->debug($sMsg . "contactDamage OK");
     }
   }
 

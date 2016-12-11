@@ -43,7 +43,7 @@
         "baseHeight":    -5.75,
         "liftInfo":      null,
         "contactDamage": {
-          "type": "DAMAGE_HEAT",
+          "type": "ENV_DMG_HEAT",
           "rate": 10.00
         }
       },

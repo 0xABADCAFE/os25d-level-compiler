@@ -88,8 +88,30 @@ interface IZoneSetValidator {
 
 }
 
+/**
+ * Trait for validating DamageInfo records
+ */
+
+trait TEnvDamageValidator {
+
+  protected function validateEnvDamage(stdClass $oDamageInfo, $sMsg) {
+    if (!isset($oDamageInfo->type)) {
+      throw new MissingRequiredEntityException($sMsg . 'missing or invalid damage:type');
+    }
+    
+    if (
+      !isset($oDamageInfo->rate) ||
+      !is_float($oDamageInfo->rate)
+    ) {
+      throw new MissingRequiredEntityException($sMsg . 'missing or invalid damage:rate');    
+    }
+    
+    $oDamageInfo->iEnvDamageType = EnvDamageType::fromString($oDamageInfo->type);
+    
+  }
+}
+
 require_once 'zone_validators/zone_file.php';
-require_once 'zone_validators/zone_damage.php';
 require_once 'zone_validators/zone_flats.php';
 require_once 'zone_validators/zone_points.php';
 require_once 'zone_validators/zoneset_definition.php';
