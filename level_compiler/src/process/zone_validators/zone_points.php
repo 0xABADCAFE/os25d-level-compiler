@@ -7,6 +7,9 @@
  */ 
 
 class ZonePointsDefinitionValidator extends ZoneDataValidator implements ISingleZoneValidator {
+
+  use TZoneScaling;
+
   public function validate(stdClass $oZone) {
     if (
       !isset($oZone->points) ||

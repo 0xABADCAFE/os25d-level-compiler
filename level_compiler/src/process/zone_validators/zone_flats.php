@@ -10,7 +10,8 @@
 abstract class ZoneFlatDefinitionValidator extends ZoneDataValidator implements ISingleZoneValidator {
 
   use TEnvDamageValidator;
-  
+  use TZoneScaling;
+    
   protected function validateFlat(stdClass $oFlat, $sMsg) {
     if (
       !isset($oFlat->baseHeight) ||

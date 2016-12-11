@@ -31,6 +31,46 @@ abstract class ZoneDataValidator implements IZoneLimits {
    */
   public abstract function validate(stdClass $oZoneData);
 
+}
+
+/**
+ * Tagging interface for validators that operate on a single Zone
+ */
+interface ISingleZoneValidator {
+
+}
+
+/**
+ * Tagging interface for validators that operate on a set of Zones
+ */
+interface IZoneSetValidator {
+
+}
+
+/**
+ * Trait for validating DamageInfo records
+ */
+
+trait TEnvDamageValidator {
+
+  protected function validateEnvDamage(stdClass $oDamageInfo, $sMsg) {
+    if (!isset($oDamageInfo->type)) {
+      throw new MissingRequiredEntityException($sMsg . 'missing or invalid damage:type');
+    }
+    
+    if (
+      !isset($oDamageInfo->rate) ||
+      !is_float($oDamageInfo->rate)
+    ) {
+      throw new MissingRequiredEntityException($sMsg . 'missing or invalid damage:rate');    
+    }
+    
+    $oDamageInfo->iEnvDamageType = EnvDamageType::fromString($oDamageInfo->type);
+    
+  }
+}
+
+trait TZoneScaling {
   /**
    * Utility function for rounding raw floating point to the precision set in
    * IZoneLimits::I_PRECISION
@@ -70,44 +110,6 @@ abstract class ZoneDataValidator implements IZoneLimits {
         self::F_MAX_ORDINATE
       )); 
     }
-  }
-
-}
-
-/**
- * Tagging interface for validators that operate on a single Zone
- */
-interface ISingleZoneValidator {
-
-}
-
-/**
- * Tagging interface for validators that operate on a set of Zones
- */
-interface IZoneSetValidator {
-
-}
-
-/**
- * Trait for validating DamageInfo records
- */
-
-trait TEnvDamageValidator {
-
-  protected function validateEnvDamage(stdClass $oDamageInfo, $sMsg) {
-    if (!isset($oDamageInfo->type)) {
-      throw new MissingRequiredEntityException($sMsg . 'missing or invalid damage:type');
-    }
-    
-    if (
-      !isset($oDamageInfo->rate) ||
-      !is_float($oDamageInfo->rate)
-    ) {
-      throw new MissingRequiredEntityException($sMsg . 'missing or invalid damage:rate');    
-    }
-    
-    $oDamageInfo->iEnvDamageType = EnvDamageType::fromString($oDamageInfo->type);
-    
   }
 }
 
