@@ -20,9 +20,9 @@
         [ 0.00, 10.00], [ 0.00,  5.00]
       ],
       "floor": {
-        "baseHeight":    0.00,
-        "contactDamage": null,
-        "liftInfo":      null
+        "baseHeight":     0.00,
+        "contactHazards": [],
+        "liftInfo":       null
       },
       "ceiling": {
         "baseHeight": 2.50,
@@ -42,10 +42,10 @@
       "floor": {
         "baseHeight":    -5.75,
         "liftInfo":      null,
-        "contactDamage": {
+        "contactHazards": [{
           "type": "ENV_DMG_HEAT",
           "rate": 10.00
-        }
+        }]
       },
       "ceiling": {
         "baseHeight": -2.00,
@@ -61,7 +61,7 @@
       ],
       "floor": {
         "baseHeight":    -5.50,
-        "contactDamage": null,
+        "contactHazards": [],
         "liftInfo": {
           "extHeight": 0.00,
           "raiseSpeed": 1.50,
@@ -80,11 +80,15 @@
     },
 
     {
-      "comment": "Another space adjoining lift shaft",
+      "comment": "Another space adjoining lift shaft with a radiation hazard",
       "points": [
         [ 6.00, -2.00], [4.00, -2.00], [-2.00, -2.00],
         [-2.00, -6.00], [8.00, -6.00], [ 8.00, -2.00]
       ],
+      "envHazards": [{
+        "type":"ENV_DMG_RAD",
+        "rate":1.0
+      }],
       "floor": {
         "baseHeight": -3.00,
         "liftInfo": null
