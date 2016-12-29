@@ -114,6 +114,7 @@ trait TZoneScaling {
 }
 
 require_once 'zone_validators/zone_file.php';
+require_once 'zone_validators/zone_properties.php';
 require_once 'zone_validators/zone_flats.php';
 require_once 'zone_validators/zone_points.php';
 require_once 'zone_validators/zoneset_definition.php';

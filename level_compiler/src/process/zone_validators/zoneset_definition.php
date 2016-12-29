@@ -11,6 +11,7 @@ class ZoneSetDefinitionValidator extends ZoneDataValidator implements IZoneSetVa
   public function __construct(ILog $oLog) {
     $this->oLog = $oLog;
     $this->aValidators = [
+      new ZonePropertiesDefinitionValidator($oLog),
       new ZoneFloorDefinitionValidator($oLog),
       new ZoneCeilingDefinitionValidator($oLog),
       new ZonePointsDefinitionValidator($oLog)
@@ -48,7 +49,7 @@ class ZoneSetDefinitionValidator extends ZoneDataValidator implements IZoneSetVa
           $oValidator->validate($oZone);
         }
         $iNextId++;
-      } catch (ZoneValidationExceptionException $e) {
+      } catch (ZoneValidationException $e) {
         $this->oLog->warn(
           "Caught unexpeted " . get_class($e) .
           " when processing Zone {$oZone->runtimeId} with message " . $e->getMessage() .
