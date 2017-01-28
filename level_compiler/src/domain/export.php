@@ -11,6 +11,23 @@ interface IBinaryExportable {
   public function getBinaryIdent();
 }
 
+trait TBinaryExportable {
+
+  protected function intToU8($iInt) {
+    
+  }
+  
+  protected function intToU16BE($iInt) {
+  
+  }
+  
+  protected function intToU32BE($iInt) {
+  
+  }
+
+  
+}
+
 /**
  * BinaryExportFile class. Used to create the final level data to be used by the engine.
  */
