@@ -4,7 +4,7 @@
  * ZonePointsDefinitionValidator
  *
  * Validates the points definition of a zone.
- */ 
+ */
 
 class ZonePointsDefinitionValidator extends ZoneDataValidator implements ISingleZoneValidator {
 
@@ -41,7 +41,7 @@ class ZonePointsDefinitionValidator extends ZoneDataValidator implements ISingle
     ) {
       $fOffsetY = $this->oCommon->offset->y;
     }
-    
+
     // Check for degenerate/duplicate points
     $aDegenerate = [];
     foreach ($oZone->points as $i => &$tPoint) {
@@ -51,12 +51,12 @@ class ZonePointsDefinitionValidator extends ZoneDataValidator implements ISingle
       $tPoint[0] += $fOffsetX;
       $tPoint[1] += $fOffsetY;
 
-      $this->validatePointRange($tPoint, $sMsg);  
+      $this->validatePointRange($tPoint, $sMsg);
       $this->limitPointPrecision($tPoint, $sMsg);
 
       $sKey = sprintf("%.2f:%.2f", $tPoint[0], $tPoint[1]);
       if (isset($aDegenerate[$sKey])) {
-        $iD = $aDegenerate[$sKey];     
+        $iD = $aDegenerate[$sKey];
         throw new InvalidZoneDataException($sMsg . "is a duplicate of points[$iD]");
       } else {
         $aDegenerate[$sKey] = $i;
@@ -64,8 +64,8 @@ class ZonePointsDefinitionValidator extends ZoneDataValidator implements ISingle
     }
     $this->oLog->debug("Zone {$oZone->runtimeId} points OK");
   }
-  
-  private function validatePointDef(array& $tPoint, $sMsg) {
+
+  private function validatePointDef(array& $tPoint, string $sMsg) {
     // Tuple structure
     if (
       count($tPoint)!=2 ||
@@ -75,13 +75,13 @@ class ZonePointsDefinitionValidator extends ZoneDataValidator implements ISingle
       throw new InvalidZoneDataException($sMsg . "has invalid count or contents");
     }
   }
-  
-  private function validatePointRange(array& $tPoint, $sMsg) {
+
+  private function validatePointRange(array& $tPoint, string $sMsg) {
     $this->assertRange($tPoint[0], $sMsg . 'X ordinate');
     $this->assertRange($tPoint[1], $sMsg . 'Y ordinate');
   }
 
-  private function limitPointPrecision(array& $tPoint, $sMsg) {
+  private function limitPointPrecision(array& $tPoint, string $sMsg) {
     $sMsg .= 'discarding excess precision in ';
     $tPoint[0] = $this->limitPrecision($tPoint[0], $sMsg . 'X ordinate');
     $tPoint[1] = $this->limitPrecision($tPoint[1], $sMsg . 'Y ordinate');

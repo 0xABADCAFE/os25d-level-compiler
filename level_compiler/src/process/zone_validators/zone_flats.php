@@ -5,14 +5,14 @@
  * ZoneFlatDefinitionValidator
  *
  * Common floor/ceiling definition validation.
- */ 
+ */
 
 abstract class ZoneFlatDefinitionValidator extends ZoneDataValidator implements ISingleZoneValidator {
 
   use TEnvDamageValidator;
   use TZoneScaling;
-    
-  protected function validateFlat(stdClass $oFlat, $sMsg) {
+
+  protected function validateFlat(stdClass $oFlat, string $sMsg) {
     if (
       !isset($oFlat->baseHeight) ||
       !is_float($oFlat->baseHeight)
@@ -45,7 +45,7 @@ abstract class ZoneFlatDefinitionValidator extends ZoneDataValidator implements 
     }
   }
 
-  protected function validateLiftInfo($oFlat, $fOffsetZ, $sMsg) {
+  protected function validateLiftInfo(stdClass $oFlat, float $fOffsetZ, string $sMsg) {
     $oLift = $oFlat->liftInfo;
     if (
       !isset($oLift->extHeight) ||
@@ -55,7 +55,7 @@ abstract class ZoneFlatDefinitionValidator extends ZoneDataValidator implements 
     }
 
     $oLift->extHeight += $fOffsetZ;
-    
+
     $this->assertRange($oLift->extHeight, $sMsg . 'extHeight');
     $oLift->extHeight = $this->limitPrecision(
       $oLift->extHeight,
@@ -63,7 +63,7 @@ abstract class ZoneFlatDefinitionValidator extends ZoneDataValidator implements 
     );
 
     $fMinSpeed = 1.0 / self::F_SCALE;
-    
+
     if (
       !isset($oLift->raiseSpeed) ||
       !is_float($oLift->raiseSpeed) ||
@@ -94,22 +94,22 @@ abstract class ZoneFlatDefinitionValidator extends ZoneDataValidator implements 
       !isset($oLift->initPos) ||
       !is_string($oLift->initPos)
     ) {
-      throw new MissingRequiredEntityException($sMsg . 'missing or invalid initPos');    
-    }    
+      throw new MissingRequiredEntityException($sMsg . 'missing or invalid initPos');
+    }
     $oLift->iInitPos = LiftPosition::fromString($oLift->initPos)->value();
 
     if (
       !isset($oLift->blocked) ||
       !is_string($oLift->blocked)
     ) {
-      throw new MissingRequiredEntityException($sMsg . 'missing or invalid blocked');    
-    }    
+      throw new MissingRequiredEntityException($sMsg . 'missing or invalid blocked');
+    }
     $oLift->iBlocked = LiftBlocked::fromString($oLift->blocked)->value();
 
 
     // TODO - triggers
 
-    $this->oLog->debug($sMsg . "lift definition OK");    
+    $this->oLog->debug($sMsg . "lift definition OK");
   }
 }
 
@@ -117,7 +117,7 @@ abstract class ZoneFlatDefinitionValidator extends ZoneDataValidator implements 
  * ZoneFloorDefinitionValidator
  *
  * Validates the floor definition of a zone.
- */ 
+ */
 
 class ZoneFloorDefinitionValidator extends ZoneFlatDefinitionValidator {
   public function validate(stdClass $oZone) {
@@ -137,7 +137,7 @@ class ZoneFloorDefinitionValidator extends ZoneFlatDefinitionValidator {
  * ZoneCeilingDefinitionValidator
  *
  * Validates the ceiling definition of a zone.
- */ 
+ */
 
 class ZoneCeilingDefinitionValidator extends ZoneFlatDefinitionValidator {
   public function validate(stdClass $oZone) {

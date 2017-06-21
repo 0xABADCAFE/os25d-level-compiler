@@ -7,19 +7,16 @@
  */
 class ConnectionMatrix implements IBinaryExportable {
 
-  private
-    $iDimension   = 0,
-    $aConnections = []
-  ;  
 
-  public function __construct($iDimension) {
-    $this->iDimension = (int)$iDimension;
+
+  public function __construct(int $iDimension) {
+    $this->iDimension = $iDimension;
   }
 
   public function normalise() {
     ksort($this->aConnections);
   }
-  
+
   /**
    * Obtain the zero-span encoded version of the data for use in the C/C++ engine:
    *
@@ -37,30 +34,35 @@ class ConnectionMatrix implements IBinaryExportable {
    *
    * @return binary
    */
-  public function getBinaryData() {
+  public function getBinaryData() : string {
     return ''; // TODO
   }
-  
+
   /** @return char[4] */
-  public function getBinaryIdent() {
+  public function getBinaryIdent() : string {
     return 'ZCMatrix';
   }
-  
-  public function getConnection($iFromZoneId, $iToZoneId) {
+
+  public function getConnection(int $iFromZoneId, int $iToZoneId) : int {
     return isset($this->aConnections[$iFromZoneId][$iToZoneId]) ?
       $this->aConnections[$iFromZoneId][$iToZoneId] :
       0;
   }
 
-  public function addConnection($iFromZoneId, $iToZoneId, $iViaEdge) {
+  public function addConnection(int $iFromZoneId, int $iToZoneId, int $iViaEdge) {
     if (isset($this->aConnections[$iFromZoneId][$iToZoneId])) {
-      throw new IllegalSharedEdgeCountException();    
+      throw new IllegalSharedEdgeCountException();
     }
-    
+
     if (!isset($this->aConnections[$iFromZoneId])) {
       $this->aConnections[$iFromZoneId] = [$iToZoneId => $iViaEdge];
     } else {
-      $this->aConnections[$iFromZoneId][$iToZoneId] = $iViaEdge;    
+      $this->aConnections[$iFromZoneId][$iToZoneId] = $iViaEdge;
     }
   }
+
+  private
+    $iDimension   = 0,
+    $aConnections = []
+  ;
 }

@@ -9,15 +9,15 @@ interface IZoneLimits {
     F_MIN_ORDINATE = -325.0,
     F_MAX_ORDINATE = 325.0,
     I_PRECISION    = 2,
-    
+
     // Points per zone limits
     I_MIN_POINTS   = 3,
     I_MAX_POINTS   = 16,
-    
+
     // Map space axis limits are uint16, centred on 32768
     F_SCALE        = 100,
     I_BIAS         = 32768
-  ;      
+  ;
 }
 
 /**
@@ -42,7 +42,7 @@ class BoundingBox {
     $iMaxY,
     $iMaxZ
   ;
-  
+
   public function __construct(stdClass $oBox) {
     $this->iMinX = ZoneUtil::intOrdinate($oBox->min->x);
     $this->iMinY = ZoneUtil::intOrdinate($oBox->min->y);
@@ -61,7 +61,7 @@ class BoundingBox {
       $this->iMaxZ < $oBox->iMinZ ||
       $this->iMinZ > $oBox->iMaxZ
     );
-  
+
   }
 
   public function describe() {
@@ -79,19 +79,6 @@ class BoundingBox {
  */
 class Zone implements IZoneLimits, IBinaryExportable {
 
-  private
-    $oJRep      = null,
-    $oBBox      = null,
-    $iFloorBase = 0,
-    $iFloorExt  = 0,
-    $iCeilBase  = 0,
-    $iCeilExt   = 0,
-    $aOrds      = [],
-    $aEdges     = [],
-    $aEdgesRev  = [],
-    $aTestZones = []
-  ;
-  
   public function __construct(stdClass $oJRep) {
     $this->oJRep = $oJRep;
     $this->oBBox = new BoundingBox($this->oJRep->bounds);
@@ -101,7 +88,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
   }
 
   public function getBinaryData() {
-  
+
     $sData = pack(
       'n*',
       // Unique ID, 0-1999
@@ -110,27 +97,27 @@ class Zone implements IZoneLimits, IBinaryExportable {
       // Number of points, 3-16
       count($this->aOrds),
 
-      // Area Bounds      
+      // Area Bounds
       $this->oBBox->iMinX,
       $this->oBBox->iMaxX,
       $this->oBBox->iMinY,
       $this->oBBox->iMaxY,
-      
+
       // Floor
       $this->iFloorBase,
       $this->iFloorExt,
-      
+
       // Ceiling
       $this->iCeilBase,
       $this->iCeilExt
-    ); 
+    );
 
     foreach ($this->aOrds as $iOrd) {
       $sData .= pack('n', $iOrd);
     }
     return $sData;
   }
-  
+
   public function getBinaryIdent() {
     return 'ZoneData';
   }
@@ -146,7 +133,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
     if ($this->getRuntimeId() == $oZone->getRuntimeId()) {
       throw new InvalidArgumentException();
     }
-    $this->aTestZones[$oZone->getRuntimeId()] = $oZone;  
+    $this->aTestZones[$oZone->getRuntimeId()] = $oZone;
     return $this;
   }
 
@@ -154,7 +141,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
    * Return the set of Zones that were added for contact testing.
    *
    * @return Zone[]
-   */  
+   */
   public function &getZonesForContactTest() {
     return $this->aTestZones;
   }
@@ -163,7 +150,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
    * Return the CCW defined set of edges in the current Zone
    *
    * @return Zone[]
-   */  
+   */
   public function &getEdges() {
     return $this->aEdges;
   }
@@ -173,7 +160,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
    * antiparallel edge comparison.
    *
    * @return Zone[]
-   */  
+   */
   public function &getEdgesRev() {
     return $this->aEdgesRev;
   }
@@ -205,7 +192,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
     foreach($this->oJRep->points as &$tPoint) {
       $this->aOrds[] = ZoneUtil::intOrdinate($tPoint[0]);
       $this->aOrds[] = ZoneUtil::intOrdinate($tPoint[1]);
-    }  
+    }
   }
 
   private function buildEdges() {
@@ -240,14 +227,27 @@ class Zone implements IZoneLimits, IBinaryExportable {
     } else {
       $this->iFloorExt = $this->iFloorBase;
     }
-    
+
     $this->iCeilBase = ZoneUtil::intOrdinate($this->oJRep->ceiling->baseHeight);
-    
+
     if (isset($this->oJRep->ceiling->liftInfo)) {
       $this->iCeilExt = ZoneUtil::intOrdinate($this->oJRep->ceiling->liftInfo->extHeight);
     } else {
       $this->iCeilExt = $this->iCeilBase;
     }
   }
+
+  private
+    $oJRep      = null,
+    $oBBox      = null,
+    $iFloorBase = 0,
+    $iFloorExt  = 0,
+    $iCeilBase  = 0,
+    $iCeilExt   = 0,
+    $aOrds      = [],
+    $aEdges     = [],
+    $aEdgesRev  = [],
+    $aTestZones = []
+  ;
 }
 

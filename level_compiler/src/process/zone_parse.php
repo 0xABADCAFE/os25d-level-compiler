@@ -8,17 +8,17 @@ class ZoneParser {
   private
     /** @var ILog $oLog */
     $oLog              = null,
-    
+
     /** @var Zone[] $aZones */
     $aZones            = null,
-    
+
     /** @var ZoneDataValidator[] $aZoneValidators */
     $aZoneValidators   = null,
-    
+
     /** @var ConnectionMatrix $oConnectionMatrix */
     $oConnectionMatrix = null
   ;
-  
+
   public static function get() {
     return new self;
   }
@@ -34,21 +34,21 @@ class ZoneParser {
   }
 
   /** @return ConnectionMatrix */
-  public function getConnectionMatrix() {
+  public function getConnectionMatrix() : ConnectionMatrix {
     return $this->oConnectionMatrix;
   }
 
   /** @return Zone[] */
-  public function &getZoneList() {
+  public function &getZoneList() : array {
     return $this->aZones;
   }
 
   /**
    * Attempts to load and parse thhe z_*.json zone files in the specified directory
    *
-   * @param string $sDirname 
+   * @param string $sDirname
    */
-  public function processDirectory($sDirname) {
+  public function processDirectory(string $sDirname) : self {
     $this->aZones = [];
     $aZoneFiles   = $this->getDirectoryList($sDirname);
     foreach ($aZoneFiles as $sZoneFile) {
@@ -83,7 +83,7 @@ class ZoneParser {
    * All the Zones that are found that contact the Zone under iteration are added to it for the subsequent
    * edge share detection stage.
    */
-  public function runBoundingBoxAnalysis() {
+  public function runBoundingBoxAnalysis() : self {
     $iNumZones = count($this->aZones);
 
     $this->oLog->info("Beginning Bounding Box Analysis for $iNumZones Zones");
@@ -118,7 +118,7 @@ class ZoneParser {
    * The test locates the relevant Edge in each Zone and records both in the ConnectionMatrix
    */
 
-  public function runZoneConnectionAnalysis() {
+  public function runZoneConnectionAnalysis() :Self {
 
     $this->oLog->info("Beginning Zone Connection Analysis");
 
@@ -143,14 +143,14 @@ class ZoneParser {
             );
           }
         }
-      }    
+      }
     }
     $this->oConnectionMatrix->normalise();
     $this->oLog->info("Completed Zone Connection Analysis");
     return $this;
   }
 
-  private function loadZones($sZoneFile) {
+  private function loadZones(string $sZoneFile) : array {
     $oZoneData = null;
     $aZones    = [];
     if (
@@ -169,7 +169,7 @@ class ZoneParser {
     return $aZones;
   }
 
-  private function getDirectoryList($sDirname) {
+  private function getDirectoryList(string $sDirname) : array {
     $sDirname = rtrim($sDirname, '/');
     if (
       !is_dir($sDirname) ||
@@ -177,7 +177,7 @@ class ZoneParser {
     ) {
       throw new IOReadException($sDirname);
     }
-    
+
     $aFiles = glob($sDirname . '/z_*.json');
     sort($aFiles);
     return $aFiles;
