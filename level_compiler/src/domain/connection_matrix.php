@@ -7,13 +7,16 @@
  */
 class ConnectionMatrix implements IBinaryExportable {
 
-
+  use TBinaryExportable;
 
   public function __construct(int $iDimension) {
     $this->iDimension = $iDimension;
   }
 
   public function normalise() {
+    foreach ($this->aConnections as &$aConnection) {
+      ksort($aConnection);
+    }
     ksort($this->aConnections);
   }
 
@@ -35,10 +38,20 @@ class ConnectionMatrix implements IBinaryExportable {
    * @return binary
    */
   public function getBinaryData() : string {
-    return ''; // TODO
+    //$this->normalise();
+    $sBin = '';
+    for ($i = 0; $i < $this->iDimension; $i++) {
+      $aRow = $this->encodeRow($i);
+      
+      //print_r($aRow);
+      
+      $sBin .= $this->arrayIntToU8($aRow);
+    }
+  
+    return $sBin;
   }
 
-  /** @return char[4] */
+  /** @return char[8] */
   public function getBinaryIdent() : string {
     return 'ZCMatrix';
   }
@@ -59,6 +72,38 @@ class ConnectionMatrix implements IBinaryExportable {
     } else {
       $this->aConnections[$iFromZoneId][$iToZoneId] = $iViaEdge;
     }
+  }
+
+  private function encodeRow(int $iFromZoneId) : array {
+    $aRow  = [];
+    $iLast = 0;
+    foreach ($this->aConnections[$iFromZoneId] as $iToZoneId => $iViaEdge) {
+    
+      // See how many zones connections were skipped before we hit iZoneToId and encode as a zero span
+      $iZeroSpan = $iToZoneId - $iLast;
+      if ($iZeroSpan > 0) {
+        $this->encodeZeroSpan($aRow, $iZeroSpan);
+      }
+      
+      // Encode the connection entry and update the last empty zone to be one after the current
+      $aRow[] = 0x80 | $iViaEdge;
+      $iLast  = $iToZoneId + 1;;
+    }
+    
+    // Deal with trailing empty zone connections and encode as a zero span
+    $iZeroSpan = $this->iDimension - $iLast;
+    if ($iZeroSpan > 0) {
+      $this->encodeZeroSpan($aRow, $iZeroSpan);
+    }
+    
+    return $aRow;
+  }
+
+  private function encodeZeroSpan(array& $aRow, int $iLength) {
+    if ($iLength > 128) {
+      // Encode up to the first 128 zeros as usual, then encode how many additional  spans of 128
+    }
+    $aRow[] = $iLength - 1;
   }
 
   private

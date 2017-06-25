@@ -33,7 +33,7 @@ trait TBinaryExportable {
     return implode('', array_map([$this, 'intToU8'], $aInt));
   }
 
-  protected function arrauIntToU16BE(array $aInt) : string {
+  protected function arrayIntToU16BE(array $aInt) : string {
     return implode('', array_map([$this, 'intToU16'], $aInt));
   }
 
