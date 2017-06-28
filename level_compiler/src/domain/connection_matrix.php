@@ -35,25 +35,29 @@ class ConnectionMatrix implements IBinaryExportable {
    *     allows for an empty row (a zone with no connections) in a map with up to 2^14 Zones to be encoded as 2 bytes.
    * (2) Vis and/or AI crossing data to be defined.
    *
+   *
+   * [ Dimension    : U16 ] Number of rows / columns
+   * [ Row 1 Offset : U16 ] Offset to Row[1] data. There is no offset to Row[0] data as this would just be zero.
+   * [ Row 2 Offset : U16 ]
+   * [ ...          : U16 ]
+   * [ Final Offset : U16 ] Offset to Row[d-1] data, the final row in the encoded set.
+   * [ RLE Row Data : U8  ] Zero span encoded byte data.
+   *
    * @return binary
    */
   public function getBinaryData() : string {
-    //$this->normalise();
-    $sBin = '';
+    $sHeaderBin = $this->intToU16BE($this->iDimension);
+    $sBodyBin   = '';
     for ($i = 0; $i < $this->iDimension; $i++) {
-      $aRow = $this->encodeRow($i);
-      
-      //print_r($aRow);
-      
-      $sBin .= $this->arrayIntToU8($aRow);
+      $sBodyBin = $this->encodeRow($i);
+      $sHeaderBin .= $this->intToU16BE(strlen($sBodyBin));
     }
-  
-    return $sBin;
+    return $sHeaderBin . $sBodyBin;
   }
 
   /** @return char[8] */
   public function getBinaryIdent() : string {
-    return 'ZCMatrix';
+    return 'CMtx';
   }
 
   public function getConnection(int $iFromZoneId, int $iToZoneId) : int {
@@ -74,29 +78,29 @@ class ConnectionMatrix implements IBinaryExportable {
     }
   }
 
-  private function encodeRow(int $iFromZoneId) : array {
+  private function encodeRow(int $iFromZoneId) : string {
     $aRow  = [];
     $iLast = 0;
     foreach ($this->aConnections[$iFromZoneId] as $iToZoneId => $iViaEdge) {
-    
+
       // See how many zones connections were skipped before we hit iZoneToId and encode as a zero span
       $iZeroSpan = $iToZoneId - $iLast;
       if ($iZeroSpan > 0) {
         $this->encodeZeroSpan($aRow, $iZeroSpan);
       }
-      
+
       // Encode the connection entry and update the last empty zone to be one after the current
       $aRow[] = 0x80 | $iViaEdge;
-      $iLast  = $iToZoneId + 1;;
+      $iLast  = $iToZoneId + 1;
     }
-    
+
     // Deal with trailing empty zone connections and encode as a zero span
     $iZeroSpan = $this->iDimension - $iLast;
     if ($iZeroSpan > 0) {
       $this->encodeZeroSpan($aRow, $iZeroSpan);
     }
-    
-    return $aRow;
+
+    return $this->arrayIntToU8($aRow);
   }
 
   private function encodeZeroSpan(array& $aRow, int $iLength) {
