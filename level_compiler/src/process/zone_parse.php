@@ -38,9 +38,9 @@ class ZoneParser {
     return $this->oConnectionMatrix;
   }
 
-  /** @return Zone[] */
-  public function &getZoneList() : array {
-    return $this->aZones;
+  /** @return ZoneSet */
+  public function getZoneSet() : ZoneSet {
+    return new ZoneSet($this->aZones);
   }
 
   /**
@@ -118,7 +118,7 @@ class ZoneParser {
    * The test locates the relevant Edge in each Zone and records both in the ConnectionMatrix
    */
 
-  public function runZoneConnectionAnalysis() :Self {
+  public function runZoneConnectionAnalysis() : self {
 
     $this->oLog->info("Beginning Zone Connection Analysis");
 
@@ -184,3 +184,4 @@ class ZoneParser {
   }
 
 }
+

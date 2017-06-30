@@ -46,13 +46,18 @@ class ConnectionMatrix implements IBinaryExportable {
    * @return binary
    */
   public function getBinaryData() : string {
-    $sHeaderBin = $this->intToU16BE($this->iDimension);
-    $sBodyBin   = '';
+    $sBinary  = '';
+    $aOffset  = [$this->iDimension];
+    $iOffset  = 0;
     for ($i = 0; $i < $this->iDimension; $i++) {
-      $sBodyBin = $this->encodeRow($i);
-      $sHeaderBin .= $this->intToU16BE(strlen($sBodyBin));
+      $sRowBinary  = $this->encodeRow($i);
+      $iOffset    += strlen($sRowBinary);
+      $sBinary    .= $sRowBinary;
+      $aOffset[]   = $iOffset;
     }
-    return $sHeaderBin . $sBodyBin;
+    array_pop($aOffset);
+
+    return $this->arrayIntToU16BE($aOffset) . $sBinary;
   }
 
   /** @return char[8] */

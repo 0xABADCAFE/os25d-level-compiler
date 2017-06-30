@@ -59,3 +59,4 @@ class ZoneSetGeometryValidator extends ZoneDataValidator implements IZoneSetVali
     $oZone->bounds = $oBounds;
   }
 }
+

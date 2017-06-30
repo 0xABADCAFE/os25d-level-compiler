@@ -20,6 +20,8 @@ interface IZoneLimits {
   ;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * ZoneUtil class. Helper utility class for Zone tasks.
  *
@@ -29,6 +31,8 @@ class ZoneUtil implements IZoneLimits {
     return self::I_BIAS + (int)($fVal * self::F_SCALE);
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * BoundingBox class. Simple, axis aligned bounding box type that takes the .
@@ -72,11 +76,22 @@ class BoundingBox {
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
- * Basic Zone container class. Represents the end stage of validation and parsing. The JSON representation
+ * Basic Zone class. Represents the end stage of validation and parsing. The JSON representation
  * is wrapped up and all the other required properties are determined
  */
 class Zone implements IZoneLimits, IBinaryExportable {
+
+  const
+    // Flags
+    ZF_FLOOR_LIFT   = 0x8000, // Floor is a lift, so expect a definition section
+    ZF_FLOOR_DAMAGE = 0x4000, // Floor inflicts contact damages, so expect a definition section
+    ZF_CEIL_LOWER   = 0x2000, // Ceiling is a lift, so expect a defintion section
+    ZF_CEIL_DAMAGE  = 0x1000, // Ceiling inflicts contact damages, so expect a definition section
+    ZF_ENV_DAMAGE   = 0x0800  // Zone has environmental damages, so expect a definiton section
+  ;
 
   use TBinaryExportable;
 
@@ -88,14 +103,13 @@ class Zone implements IZoneLimits, IBinaryExportable {
     $this->buildFlats();
   }
 
-  public function getBinaryData() {
-
+  public function getBinaryData() : string {
     $sData = $this->arrayIntToU16BE([
       // Unique ID, 0-1999
       $this->getRuntimeId(),
 
-      // Number of points, 3-16
-      count($this->aOrds),
+      // Flags in upper byte, ordinate count in lower byte
+      $this->iZoneFlags | count($this->aOrds),
 
       // Area Bounds
       $this->oBBox->iMinX,
@@ -112,10 +126,17 @@ class Zone implements IZoneLimits, IBinaryExportable {
       $this->iCeilExt
     ]) . $this->arrayIntToU16BE($this->aOrds);
 
+    if ($this->iZoneFlags & self::ZF_FLOOR_LIFT) {
+      $sData .= 'TODOLIFT';
+    }
+    if ($this->iZoneFlags & self::ZF_CEIL_LOWER) {
+      $sData .= 'TODOCEIL';
+    }
+
     return $sData;
   }
 
-  public function getBinaryIdent() {
+  public function getBinaryIdent() : string {
     return 'ZDat';
   }
 
@@ -126,7 +147,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
    * @param Zone $oZone
    * @throws InvalidArgumentException
    */
-  public function addZoneForContactTest(Zone $oZone) {
+  public function addZoneForContactTest(Zone $oZone) : self {
     if ($this->getRuntimeId() == $oZone->getRuntimeId()) {
       throw new InvalidArgumentException();
     }
@@ -139,7 +160,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
    *
    * @return Zone[]
    */
-  public function &getZonesForContactTest() {
+  public function &getZonesForContactTest() : array {
     return $this->aTestZones;
   }
 
@@ -148,7 +169,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
    *
    * @return Zone[]
    */
-  public function &getEdges() {
+  public function &getEdges() : array {
     return $this->aEdges;
   }
 
@@ -158,11 +179,11 @@ class Zone implements IZoneLimits, IBinaryExportable {
    *
    * @return Zone[]
    */
-  public function &getEdgesRev() {
+  public function &getEdgesRev() : array {
     return $this->aEdgesRev;
   }
 
-  public function getRuntimeId() {
+  public function getRuntimeId() : int {
     return $this->oJRep->runtimeId;
   }
 
@@ -180,7 +201,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
     return $this->oBBox;
   }
 
-  public function getIdent() {
+  public function getIdent() : int {
     static $i=0;
     return $i++;
   }
@@ -221,22 +242,34 @@ class Zone implements IZoneLimits, IBinaryExportable {
 
     if (isset($this->oJRep->floor->liftInfo)) {
       $this->iFloorExt  = ZoneUtil::intOrdinate($this->oJRep->floor->liftInfo->extHeight);
+      $this->iZoneFlags |= self::ZF_FLOOR_LIFT;
     } else {
       $this->iFloorExt = $this->iFloorBase;
+    }
+
+    if (!empty($this->oJRep->floor->contactHazards)) {
+      $this->iZoneFlags |= self::ZF_FLOOR_DAMAGE;
     }
 
     $this->iCeilBase = ZoneUtil::intOrdinate($this->oJRep->ceiling->baseHeight);
 
     if (isset($this->oJRep->ceiling->liftInfo)) {
       $this->iCeilExt = ZoneUtil::intOrdinate($this->oJRep->ceiling->liftInfo->extHeight);
+      $this->iZoneFlags |= self::ZF_CEIL_LOWER;
     } else {
       $this->iCeilExt = $this->iCeilBase;
     }
+
+    if (!empty($this->oJRep->ceiling->contactHazards)) {
+      $this->iZoneFlags |= self::ZF_CEIL_DAMAGE;
+    }
+
   }
 
   private
     $oJRep      = null,
     $oBBox      = null,
+    $iZoneFlags = 0,
     $iFloorBase = 0,
     $iFloorExt  = 0,
     $iCeilBase  = 0,
@@ -247,4 +280,48 @@ class Zone implements IZoneLimits, IBinaryExportable {
     $aTestZones = []
   ;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Basic Zone container class. Represents the full set of Zones, intended to simplify export so that the entire
+ * set of Zone instances can be a single, indexed file chunk.
+ */
+class ZoneSet implements IBinaryExportable {
+
+  use TBinaryExportable;
+
+  public function __construct(array $aZones) {
+    $this->aZones = $aZones;
+  }
+
+  public function getBinaryData() : string {
+    $sBinary = '';
+    $aOffset = [count($this->aZones)];
+    $iOffset = 0;
+    foreach ($this->aZones as $oZone) {
+      $sZoneBinary = $this->padToBoundary($oZone->getBinaryData(), 4);
+      $iOffset  += strlen($sZoneBinary);
+      $sBinary  .= $sZoneBinary;
+      $aOffset[] = $iOffset;
+    }
+    array_pop($aOffset);
+    return $this->arrayIntToU32BE($aOffset) . $sBinary;
+  }
+
+  public function getBinaryIdent() : string {
+    return 'ZSet';
+  }
+
+  public function describe() : string {
+    $sDescription = '';
+    foreach ($this->aZones as $oZone) {
+      $sDescription .= $oZone->describe() . "\n";
+    }
+    return $sDescription;
+  }
+
+  private $aZones;
+}
+
 

@@ -5,12 +5,13 @@
  */
 interface IBinaryExportable {
   /** @return binary */
-  public function getBinaryData();
+  public function getBinaryData() : string;
 
   /** @return char[4] */
-  public function getBinaryIdent();
+  public function getBinaryIdent() : string ;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Trait for basic binary encoding tasks.
@@ -61,6 +62,8 @@ trait TBinaryExportable {
   }
 
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * BinaryExportFile class. Used to create the final level data to be loaded and used by the engine. The file begins with a header,
@@ -173,3 +176,4 @@ class BinaryExportFile {
     $aHunks  = []
   ;
 }
+

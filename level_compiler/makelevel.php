@@ -27,16 +27,10 @@ $oParser = ZoneParser::get()
   ->runBoundingBoxAnalysis()
   ->runZoneConnectionAnalysis();
 
-$aZones = $oParser->getZoneList();
-foreach ($aZones as $oZone) {
-  print($oZone->describe() . "\n");
-}
-
-$oMatrix = $oParser->getConnectionMatrix();
+echo $oParser->getZoneSet()->describe(), "\n";
 
 $oBinFile = new BinaryExportFile($sOutputFile);
-foreach ($aZones as $oZone) {
-  $oBinFile->export($oZone);
-}
-$oBinFile->export($oMatrix);
-$oBinFile->close();
+$oBinFile
+  ->export($oParser->getZoneSet())
+  ->export($oParser->getConnectionMatrix())
+  ->close();

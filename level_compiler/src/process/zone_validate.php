@@ -5,7 +5,6 @@
  *
  * Base validator class for verification of Zone data.
  */
-
 abstract class ZoneDataValidator implements IZoneLimits {
 
   /** @var ILog $oLog */
@@ -32,6 +31,7 @@ abstract class ZoneDataValidator implements IZoneLimits {
   public abstract function validate(stdClass $oZoneData);
 
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Tagging interface for validators that operate on a single Zone
@@ -40,6 +40,8 @@ interface ISingleZoneValidator {
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * Tagging interface for validators that operate on a set of Zones
  */
@@ -47,10 +49,11 @@ interface IZoneSetValidator {
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * Trait for validating DamageInfo records
  */
-
 trait TEnvDamageValidator {
 
   protected function validateEnvDamage(stdClass $oDamageInfo, $sMsg) {
@@ -70,6 +73,11 @@ trait TEnvDamageValidator {
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Trait for limiting and scaling to fixed precision
+ */
 trait TZoneScaling {
   /**
    * Utility function for rounding raw floating point to the precision set in
@@ -112,6 +120,8 @@ trait TZoneScaling {
     }
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 require_once 'zone_validators/zone_file.php';
 require_once 'zone_validators/zone_properties.php';

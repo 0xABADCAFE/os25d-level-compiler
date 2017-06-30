@@ -19,3 +19,4 @@ class ZonePropertiesDefinitionValidator extends ZoneDataValidator implements ISi
     }
   }
 }
+
