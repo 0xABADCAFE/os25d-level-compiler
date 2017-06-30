@@ -25,7 +25,7 @@ interface IZoneLimits {
  *
  */
 class ZoneUtil implements IZoneLimits {
-  public static function intOrdinate($fVal) {
+  public static function intOrdinate(float $fVal) : int {
     return self::I_BIAS + (int)($fVal * self::F_SCALE);
   }
 }
@@ -52,7 +52,7 @@ class BoundingBox {
     $this->iMaxZ = ZoneUtil::intOrdinate($oBox->max->z);
   }
 
-  public function contacts(BoundingBox $oBox) {
+  public function contacts(BoundingBox $oBox) : bool {
     return !(
       $this->iMaxX < $oBox->iMinX ||
       $this->iMinX > $oBox->iMaxX ||
@@ -61,10 +61,9 @@ class BoundingBox {
       $this->iMaxZ < $oBox->iMinZ ||
       $this->iMinZ > $oBox->iMaxZ
     );
-
   }
 
-  public function describe() {
+  public function describe() : string {
     return sprintf(
       "[%5d, %5d, %5d], [%5d, %5d, %5d]",
       $this->iMinX, $this->iMinY, $this->iMinZ,
@@ -79,6 +78,8 @@ class BoundingBox {
  */
 class Zone implements IZoneLimits, IBinaryExportable {
 
+  use TBinaryExportable;
+
   public function __construct(stdClass $oJRep) {
     $this->oJRep = $oJRep;
     $this->oBBox = new BoundingBox($this->oJRep->bounds);
@@ -89,8 +90,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
 
   public function getBinaryData() {
 
-    $sData = pack(
-      'n*',
+    $sData = $this->arrayIntToU16BE([
       // Unique ID, 0-1999
       $this->getRuntimeId(),
 
@@ -110,11 +110,8 @@ class Zone implements IZoneLimits, IBinaryExportable {
       // Ceiling
       $this->iCeilBase,
       $this->iCeilExt
-    );
+    ]) . $this->arrayIntToU16BE($this->aOrds);
 
-    foreach ($this->aOrds as $iOrd) {
-      $sData .= pack('n', $iOrd);
-    }
     return $sData;
   }
 
@@ -169,7 +166,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
     return $this->oJRep->runtimeId;
   }
 
-  public function describe() {
+  public function describe() : string {
     return sprintf(
       "Zone %d\n\tInfo: %s\n\tBounds:%s\n\tPoints: %s",
       $this->oJRep->runtimeId,
@@ -179,7 +176,7 @@ class Zone implements IZoneLimits, IBinaryExportable {
     );
   }
 
-  public function getBoundingBox() {
+  public function getBoundingBox() : BoundingBox {
     return $this->oBBox;
   }
 

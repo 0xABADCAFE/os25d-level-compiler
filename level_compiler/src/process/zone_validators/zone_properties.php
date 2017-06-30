@@ -12,10 +12,10 @@ class ZonePropertiesDefinitionValidator extends ZoneDataValidator implements ISi
 
   private function validateEnvHazards(stdClass $oZone) {
     if (!is_array($oZone->envHazards)) {
-      throw new ZoneValidationException();
+      throw new ZoneValidationException('envHazards set must be an array');
     }
-    foreach ($oZone->envHazards as $tDamage) {
-
+    foreach ($oZone->envHazards as $oDamage) {
+      $this->validateEnvDamage($oDamage, 'Env Hazard ');
     }
   }
 }
