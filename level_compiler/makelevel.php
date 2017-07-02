@@ -4,21 +4,26 @@
 /**
  * Level Compiler, main program.
  */
- 
+
 error_reporting(-1);
 
 $aOpts = getopt('d:o:');
 
 if (
-  !isset($aOpts['d']) ||
-  !isset($aOpts['o'])
+  !isset($aOpts['d'])
 ) {
-  echo "Usage makelevel.php -d <level directory> -o <output file>\n";
+  echo "Usage makelevel.php -d <level directory> [-o <output file>]\n";
   exit();
 }
 
-$sLevelDir   = $aOpts['d'];
-$sOutputFile = $aOpts['o'];
+$sLevelDir   = rtrim($aOpts['d'], '/');
+$sOutputFile = '';
+if (isset($aOpts['o'])) {
+  $sOutputFile = $aOpts['o'];
+} else {
+  $aParts = explode('/', $sLevelDir);
+  $sOutputFile = array_pop($aParts) . '.lbin';
+}
 
 require_once 'src/include.php';
 
