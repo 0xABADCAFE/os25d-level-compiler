@@ -3,7 +3,7 @@
 /**
  * Basic Log Interface. All methods expected to be implemented fluently.
  */
- 
+
 interface ILog {
   const
     I_DEBUG  = 1,
@@ -14,13 +14,13 @@ interface ILog {
     I_ALL    = 31
   ;
 
-  public function enable($iLog);
-  public function disable($iLog);
-  public function error($sError);
-  public function warn($sWarn);
-  public function notice($sNotice);
-  public function info($sInfo);
-  public function debug($sDebug);
+  public function enable(int $iLog) : ILog;
+  public function disable(int $iLog) : ILog;
+  public function error(string $sError) : ILog;
+  public function warn(string $sWarn) : ILog;
+  public function notice(string $sNotice) : ILog;
+  public function info(string $sInfo) : ILog;
+  public function debug(string $sDebug) : ILog;
 }
 
 /**
@@ -36,7 +36,7 @@ class SimpleLog implements ILog {
     $sLast,
     $iTimes
   ;
-  
+
   private static $aLevel = [
     self::I_DEBUG  => 'D',
     self::I_INFO   => 'I',
@@ -44,43 +44,43 @@ class SimpleLog implements ILog {
     self::I_WARN   => 'W',
     self::I_ERROR  => 'E',
   ];
-  
-  public function __construct($iLog = ILog::I_ALL) {
+
+  public function __construct(int $iLog = ILog::I_ALL) {
     $this->fMark = microtime(true);
-    $this->iLog  = (int)$iLog;
+    $this->iLog  = $iLog;
   }
 
-  public function enable($iLog) {
-    $this->iLog |= (int)$iLog;
+  public function enable(int $iLog) : ILog {
+    $this->iLog |= $iLog;
     return $this;
   }
 
-  public function disable($iLog) {
-    $this->iLog &= ~((int)$iLog);
+  public function disable(int $iLog) : ILog {
+    $this->iLog &= ~($iLog);
     return $this;
   }
 
-  public function error($sError) {
+  public function error(string $sError) : ILog {
     return $this->log(ILog::I_ERROR, $sError);
   }
 
-  public function warn($sWarn) {
+  public function warn(string $sWarn) : ILog {
     return $this->log(ILog::I_WARN, $sWarn);
   }
 
-  public function notice($sNote) {
+  public function notice(string $sNote) : ILog {
     return $this->log(ILog::I_NOTICE, $sNote);
   }
-  
-  public function info($sInfo) {
+
+  public function info(string $sInfo) : ILog {
     return $this->log(ILog::I_INFO, $sInfo);
   }
 
-  public function debug($sDebug) {
+  public function debug(string $sDebug) : ILog {
     return $this->log(ILog::I_DEBUG, $sDebug);
   }
 
-  protected function log($iLog, $sMessage) {
+  protected function log(int $iLog, string $sMessage) : ILog {
     if ($this->iLog & $iLog) {
       $fElapsed = microtime(true) - $this->fMark;
       printf("[%8.6f] [%s] %s\n", $fElapsed, self::$aLevel[$iLog], $sMessage);
