@@ -65,6 +65,49 @@ trait TBinaryExportable {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class ExportChunk {
+
+  const
+    ALIGN_SIZE   = 4,
+    IDENT_SIZE   = 4
+  ;
+
+  use TBinaryExportable;
+
+  public function __construct(IBinaryExportable $oExportable) {
+    $this->sIdent   = $this->padToBoundary(substr($oExportable->getBinaryIdent(), 0, self::IDENT_SIZE), self::IDENT_SIZE);
+    $sBinary        = $oExportable->getBinaryData();
+    $this->iLength  = strlen($sBinary);
+    $this->iCheck   = crc32($sBinary);
+    $sBinary        = $this->padToBoundary($sBinary, self::ALIGN_SIZE);
+    $this->sPayload = $this->sIdent . $this->arrayIntToU32BE([$this->iLength, $this->iCheck]) . $sBinary;
+  }
+
+  public function getIdent() : string {
+    return $this->sIdent;
+  }
+
+  public function getChecksum() : int {
+    return $this->iCheck;
+  }
+
+  public function getDataSize() : int {
+    return $this->iLength;
+  }
+
+  public function getPayload() : string {
+    return $this->sPayload;
+  }
+
+  private
+    $iLength,
+    $iCheck,
+    $sPayload
+  ;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * BinaryExportFile class. Used to create the final level data to be loaded and used by the engine. The file begins with a header,
  * then an index table of all the objects contained, and finally the objects themselves. The index table allows the runtime to quickly
@@ -86,8 +129,6 @@ class BinaryExportFile {
 
   const
     VERSION      = 1,
-    ALIGN_SIZE   = 4,
-    IDENT_SIZE   = 4,
     LOOKUP_SIZE  = 8,
     FILE_ID      = 'OS25DLvl',
     HEADER_SIZE  = 16
@@ -123,16 +164,11 @@ class BinaryExportFile {
    */
 
   public function export(IBinaryExportable $oExportable) : self {
-    $sIdent   = $this->padToBoundary(substr($oExportable->getBinaryIdent(), 0, self::IDENT_SIZE), self::IDENT_SIZE);
-    $sBinary  = $oExportable->getBinaryData();
-    $iLength  = strlen($sBinary);
-    $iCheck   = crc32($sBinary);
-    $sBinary  = $this->padToBoundary($sBinary, self::ALIGN_SIZE);
-    $sPayload = $sIdent . $this->arrayIntToU32BE([$iLength, $iCheck]) . $sBinary;
+    $oChunk   = new ExportChunk($oExportable);
 
     $this->aHunks[] = (object)[
-      'id'   => $sIdent,
-      'data' => $sPayload
+      'id'   => $oChunk->getIdent(),
+      'data' => $oChunk
     ];
 
     return $this;
@@ -158,14 +194,14 @@ class BinaryExportFile {
       if (!fwrite($this->rFile, $oHunk->id . $sOffset)) {
         throw new IOWriteException();
       }
-      $iSeek += strlen($oHunk->data);
+      $iSeek += strlen($oHunk->data->getPayload());
     }
 
   }
 
   private function writeHunks() {
     foreach ($this->aHunks as $oHunk) {
-      if (!fwrite($this->rFile, $oHunk->data)) {
+      if (!fwrite($this->rFile, $oHunk->data->getPayload())) {
         throw new IOWriteException();
       }
     }
