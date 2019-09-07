@@ -4,11 +4,19 @@
  * Basic interface for entities that should support a serialisation to binary.
  */
 interface IBinaryExportable {
-    /** @return binary */
+    /**
+     * Return a binary string representation of this entity.
+     *
+     * @return string
+     */
     public function getBinaryData() : string;
 
-    /** @return char[4] */
-    public function getBinaryIdent() : string ;
+    /**
+     * Return a fixed length string ident of this entity.
+     *
+     * @return string
+     */
+    public function getBinaryIdent() : string;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -18,6 +26,12 @@ interface IBinaryExportable {
  */
 trait TBinaryExportable {
 
+    /**
+     * Convert an integer value in the range representable by a single byte into a 1 byte string.
+     *
+     * @param int $i
+     * @return string
+     */
     protected function intToU8(int $i) : string {
         if ($i < -128 || $i > 255) {
             throw new UnexpectedValueException();
@@ -25,6 +39,12 @@ trait TBinaryExportable {
         return pack('C', $i);
     }
 
+    /**
+     * Convert an integer value in the range representable by a 16 bit word into a Big Endian 2 byte string.
+     *
+     * @param int $i
+     * @return string
+     */
     protected function intToU16BE(int $i) : string {
         if ($i < -32768 || $i > 65536) {
             throw new UnexpectedValueException();
@@ -32,6 +52,12 @@ trait TBinaryExportable {
         return pack('n', $i);
     }
 
+    /**
+     * Convert an integer value in the range representable by a 32 bit word into a Big Endian 4 byte string.
+     *
+     * @param int $i
+     * @return string
+     */
     protected function intToU32BE(int $i) : string {
         if ($i < -2147483648 || $i > 4294967296) {
             throw new UnexpectedValueException();
@@ -39,18 +65,43 @@ trait TBinaryExportable {
         return pack('N', $i);
     }
 
+    /**
+     * Convert an array of integers each representable by a single byte into a string of 1 byte values.
+     *
+     * @param int[] $a
+     * @return string
+     */
     protected function arrayIntToU8(array $a) : string {
         return implode('', array_map([$this, 'intToU8'], $a));
     }
 
+    /**
+     * Convert an array of integers each representable by a 16 bit word into a string of Big Endian 2 byte values.
+     *
+     * @param int[] $a
+     * @return string
+     */
     protected function arrayIntToU16BE(array $a) : string {
         return implode('', array_map([$this, 'intToU16BE'], $a));
     }
 
+    /**
+     * Convert an array of integers each representable by a 32 bit word into a string of Big Endian 4 byte values.
+     *
+     * @param int[] $a
+     * @return string
+     */
     protected function arrayIntToU32BE(array $a) : string {
         return implode('', array_map([$this, 'intToU32BE'], $a));
     }
 
+    /**
+     * Zero pad a binary string up to a given boundary aligment.
+     *
+     * @param string $sBinary
+     * @param int $iBoundary
+     * @return string
+     */
     protected function padToBoundary(string $sBinary, int $iBoundary) : string {
         $iLength = strlen($sBinary);
         $iPadLen = $iLength & ($iBoundary - 1);
@@ -65,6 +116,9 @@ trait TBinaryExportable {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Adapter class to package a BinaryExportable entity into a Chunk suitable for file storage.
+ */
 class ExportChunk {
 
     const
@@ -83,18 +137,30 @@ class ExportChunk {
         $this->sPayload = $this->sIdent . $this->arrayIntToU32BE([$this->iLength, $this->iCheck]) . $sBinary;
     }
 
+    /**
+     * @return string
+     */
     public function getIdent() : string {
         return $this->sIdent;
     }
 
+    /**
+     * @return int
+     */
     public function getChecksum() : int {
         return $this->iCheck;
     }
 
+    /**
+     * @return int
+     */
     public function getDataSize() : int {
         return $this->iLength;
     }
 
+    /**
+     * @return string
+     */
     public function getPayload() : string {
         return $this->sPayload;
     }
@@ -109,9 +175,9 @@ class ExportChunk {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * BinaryExportFile class. Used to create the final level data to be loaded and used by the engine. The file begins with a header,
- * then an index table of all the objects contained, and finally the objects themselves. The index table allows the runtime to quickly
- * seek() to an object for loading.
+ * BinaryExportFile class. Used to create the final level data to be loaded and used by the engine. The file begins with
+ * a header, then an index table of all the objects contained, and finally the objects themselves. The index table
+ * allows the runtime to quickly seek() to an object for loading.
  *
  * File Format:
  *
@@ -119,7 +185,7 @@ class ExportChunk {
  * [  8 : Version        : uint32               ] File version
  * [ 12 : Hunk Count     : uint32               ] Number of Hunks in file
  * [ 16 : Hunk Index [0] : { uint8[4], uint32 } ] Hunk ID / Seek offset pair for first Hunk
- * [ ...                                   ]
+ * [ ...                                        ]
  * [ XX : Hunk Index [N] : { uint8[4], uint32 } ] Hunk ID / Seek offset pair for final Hunk
  * [ YY : Hunk [0] ]                              First Hunk
  * [ ........ ]
@@ -138,7 +204,7 @@ class BinaryExportFile {
 
     public function __construct(string $sFile = null) {
         if (null !== $sFile) {
-        $this->open($sFile);
+            $this->open($sFile);
         }
     }
 
