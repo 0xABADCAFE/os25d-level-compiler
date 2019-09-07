@@ -7,28 +7,28 @@
  */
 abstract class ZoneDataValidator implements IZoneLimits {
 
-  /** @var ILog $oLog */
-  protected $oLog    = null;
+    /** @var ILog $oLog */
+    protected $oLog    = null;
 
-  /** @var stdClass $oCommon */
-  protected $oCommon = null;
-  
-  public function __construct(ILog $oLog) {
-    $this->oLog = $oLog;
-  }
+    /** @var stdClass $oCommon */
+    protected $oCommon = null;
 
-  public function setCommon(stdClass $oCommon = null) {
-    $this->oCommon = $oCommon;
-  }
-  
-  /**
-   * Main validation entry point. Validates part of the overall JSON data.
-   *
-   * @param stdClass $oZoneData
-   * @return void
-   * @throws ZoneValidationException
-   */
-  public abstract function validate(stdClass $oZoneData);
+    public function __construct(ILog $oLog) {
+        $this->oLog = $oLog;
+    }
+
+    public function setCommon(stdClass $oCommon = null) {
+        $this->oCommon = $oCommon;
+    }
+
+    /**
+     * Main validation entry point. Validates part of the overall JSON data.
+     *
+     * @param stdClass $oZoneData
+     * @return void
+     * @throws ZoneValidationException
+     */
+    public abstract function validate(stdClass $oZoneData);
 
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,21 +56,20 @@ interface IZoneSetValidator {
  */
 trait TEnvDamageValidator {
 
-  protected function validateEnvDamage(stdClass $oDamageInfo, $sMsg) {
-    if (!isset($oDamageInfo->type)) {
-      throw new MissingRequiredEntityException($sMsg . 'missing or invalid damage:type');
+    protected function validateEnvDamage(stdClass $oDamageInfo, $sMsg) {
+        if (!isset($oDamageInfo->type)) {
+            throw new MissingRequiredEntityException($sMsg . 'missing or invalid damage:type');
+        }
+
+        if (
+            !isset($oDamageInfo->rate) ||
+            !is_float($oDamageInfo->rate)
+        ) {
+            throw new MissingRequiredEntityException($sMsg . 'missing or invalid damage:rate');
+        }
+
+        $oDamageInfo->iEnvDamageType = EnvDamageType::fromString($oDamageInfo->type);
     }
-    
-    if (
-      !isset($oDamageInfo->rate) ||
-      !is_float($oDamageInfo->rate)
-    ) {
-      throw new MissingRequiredEntityException($sMsg . 'missing or invalid damage:rate');    
-    }
-    
-    $oDamageInfo->iEnvDamageType = EnvDamageType::fromString($oDamageInfo->type);
-    
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,46 +78,45 @@ trait TEnvDamageValidator {
  * Trait for limiting and scaling to fixed precision
  */
 trait TZoneScaling {
-  /**
-   * Utility function for rounding raw floating point to the precision set in
-   * IZoneLimits::I_PRECISION
-   *
-   * @param float $fRaw
-   * @param string $sMsg
-   * @return float
-   */
-  protected function limitPrecision($fRaw, $sMsg = 'Limited precision') {
-    $fRound = round($fRaw, self::I_PRECISION);
-    if ($fRound != $fRaw) {
-      $this->oLog->notice(sprintf('%s [%f -> %f]', $sMsg, $fRaw, $fRound));
+    /**
+     * Utility function for rounding raw floating point to the precision set in
+     * IZoneLimits::I_PRECISION
+     *
+     * @param float $fRaw
+     * @param string $sMsg
+     * @return float
+     */
+    protected function limitPrecision($fRaw, $sMsg = 'Limited precision') {
+        $fRound = round($fRaw, self::I_PRECISION);
+        if ($fRound != $fRaw) {
+            $this->oLog->notice(sprintf('%s [%f -> %f]', $sMsg, $fRaw, $fRound));
+        }
+        return $fRound;
     }
-    return $fRound;
-  }
 
-  /**
-   * Utility function for asserting that an Editor space ordinate is within
-   * IZoneLimits::F_MIN_ORDINATE to IZoneLimits::F_MAX_ORDINATE
-   *
-   * @param float $fRaw
-   * @param string $sMsg
-   * @return void
-   * @throws InvalidZoneDataException
-   */
-
-  protected function assertRange($fOrdinate, $sMsg) {
-    if (
-      $fOrdinate < self::F_MIN_ORDINATE ||
-      $fOrdinate > self::F_MAX_ORDINATE
-    ) {
-      throw new InvalidZoneDataException(sprintf(
-        "%s [%.2f not in range %.2f %.2f]",
-        $sMsg,
-        $fOrdinate,
-        self::F_MIN_ORDINATE,
-        self::F_MAX_ORDINATE
-      )); 
+    /**
+     * Utility function for asserting that an Editor space ordinate is within
+     * IZoneLimits::F_MIN_ORDINATE to IZoneLimits::F_MAX_ORDINATE
+     *
+     * @param float $fRaw
+     * @param string $sMsg
+     * @return void
+     * @throws InvalidZoneDataException
+     */
+    protected function assertRange($fOrdinate, $sMsg) {
+        if (
+            $fOrdinate < self::F_MIN_ORDINATE ||
+            $fOrdinate > self::F_MAX_ORDINATE
+        ) {
+            throw new InvalidZoneDataException(sprintf(
+                "%s [%.2f not in range %.2f %.2f]",
+                $sMsg,
+                $fOrdinate,
+                self::F_MIN_ORDINATE,
+                self::F_MAX_ORDINATE
+            ));
+        }
     }
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

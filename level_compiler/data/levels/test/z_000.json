@@ -1,103 +1,102 @@
 {
-  "headerInfo": {
-    "type":"ZoneData",
-    "version":"1.0"
-  },
-  "common": {
-    "offset": {
-      "x":100.00,
-      "y":100.00,
-      "z":-80.00
-    }
-  },
-  "zoneList": [
-    {
-      "comment": "Large square room at ground level with lift on centre south wall",
-      "points": [
-        [ 0.00,  0.00], [ 4.00,  0.00], [ 6.00,  0.00],
-        [10.00,  0.00], [10.00,  5.00],
-        [10.00, 10.00], [ 5.00, 10.00],
-        [ 0.00, 10.00], [ 0.00,  5.00]
-      ],
-      "floor": {
-        "baseHeight":     0.00,
-        "contactHazards": [],
-        "liftInfo":       null
-      },
-      "ceiling": {
-        "baseHeight": 2.50,
-        "liftInfo":   null,
-        "isOpen":     true
-      }
+    "headerInfo": {
+        "type":"ZoneData",
+        "version":"1.0"
     },
-    
-    {
-      "comment": "Large square room at basement level with sunken hot floor and lift on centre south wall",
-      "points": [
-        [ 0.00,  0.00], [ 4.00,  0.00], [ 6.00,  0.00],
-        [10.00,  0.00], [10.00,  5.00],
-        [10.00, 10.00], [ 5.00, 10.00],
-        [ 0.00, 10.00], [ 0.00,  5.00]
-      ],
-      "floor": {
-        "baseHeight":    -5.75,
-        "liftInfo":      null,
-        "contactHazards": [{
-          "type": "ENV_DMG_HEAT",
-          "rate": 10.00
-        }]
-      },
-      "ceiling": {
-        "baseHeight": -2.00,
-        "liftInfo":   null
-      }
-    },
-    
-    {
-      "comment": "Small square lift platform connecting rooms by south wall",
-      "points": [
-        [ 4.00, -2.00], [ 6.00, -2.00],
-        [ 6.00,  0.00], [ 4.00,  0.00]
-      ],
-      "floor": {
-        "baseHeight":    -5.50,
-        "contactHazards": [],
-        "liftInfo": {
-          "extHeight": 0.00,
-          "raiseSpeed": 1.50,
-          "lowerSpeed": 1.50,
-          "initPos": "POS_TOP",
-          "blocked": "BLOCKED_REVERSE",
-          "triggers": [
-            "PLAYER_ENTER"
-          ]
+    "common": {
+        "offset": {
+            "x":100.00,
+            "y":100.00,
+            "z":-80.00
         }
-      },
-      "ceiling": {
-        "baseHeight": 2.50,
-        "liftInfo":   null
-      }    
     },
+    "zoneList": [
+        {
+            "comment": "Large square room at ground level with lift on centre south wall",
+            "points": [
+                [ 0.00,  0.00], [ 4.00,  0.00], [ 6.00,  0.00],
+                [10.00,  0.00], [10.00,  5.00],
+                [10.00, 10.00], [ 5.00, 10.00],
+                [ 0.00, 10.00], [ 0.00,  5.00]
+            ],
+            "floor": {
+                "baseHeight":     0.00,
+                "contactHazards": [],
+                "liftInfo":       null
+            },
+            "ceiling": {
+                "baseHeight": 2.50,
+                "liftInfo":   null,
+                "isOpen":     true
+            }
+        },
 
-    {
-      "comment": "Another space adjoining lift shaft with a radiation hazard",
-      "points": [
-        [ 6.00, -2.00], [4.00, -2.00], [-2.00, -2.00],
-        [-2.00, -6.00], [8.00, -6.00], [ 8.00, -2.00]
-      ],
-      "envHazards": [{
-        "type":"ENV_DMG_RAD",
-        "rate":1.0
-      }],
-      "floor": {
-        "baseHeight": -3.00,
-        "liftInfo": null
-      },
-      "ceiling": {
-        "baseHeight": 1.00,
-        "liftInfo":   null
-      }
-    }
+        {
+            "comment": "Large square room at basement level with sunken hot floor and lift on centre south wall",
+            "points": [
+                [ 0.00,  0.00], [ 4.00,  0.00], [ 6.00,  0.00],
+                [10.00,  0.00], [10.00,  5.00],
+                [10.00, 10.00], [ 5.00, 10.00],
+                [ 0.00, 10.00], [ 0.00,  5.00]
+            ],
+            "floor": {
+                "baseHeight":    -5.75,
+                "liftInfo":      null,
+                "contactHazards": [{
+                    "type": "ENV_DMG_HEAT",
+                    "rate": 10.00
+                }]
+            },
+            "ceiling": {
+                "baseHeight": -2.00,
+                "liftInfo":   null
+            }
+        },
 
-  ]
+        {
+            "comment": "Small square lift platform connecting rooms by south wall",
+            "points": [
+                [ 4.00, -2.00], [ 6.00, -2.00],
+                [ 6.00,  0.00], [ 4.00,  0.00]
+            ],
+            "floor": {
+                "baseHeight":    -5.50,
+                "contactHazards": [],
+                "liftInfo": {
+                    "extHeight": 0.00,
+                    "raiseSpeed": 1.50,
+                    "lowerSpeed": 1.50,
+                    "initPos": "POS_TOP",
+                    "blocked": "BLOCKED_REVERSE",
+                    "triggers": [
+                        "PLAYER_ENTER"
+                    ]
+                }
+            },
+            "ceiling": {
+                "baseHeight": 2.50,
+                "liftInfo":   null
+            }
+        },
+
+        {
+            "comment": "Another space adjoining lift shaft with a radiation hazard",
+            "points": [
+                [ 6.00, -2.00], [4.00, -2.00], [-2.00, -2.00],
+                [-2.00, -6.00], [8.00, -6.00], [ 8.00, -2.00]
+            ],
+            "envHazards": [{
+                "type":"ENV_DMG_RAD",
+                "rate":1.0
+            }],
+            "floor": {
+                "baseHeight": -3.00,
+                "liftInfo": null
+            },
+            "ceiling": {
+                "baseHeight": 1.00,
+                "liftInfo":   null
+            }
+        }
+    ]
 }
