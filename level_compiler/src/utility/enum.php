@@ -2,6 +2,8 @@
 
 /**
  * Base class for Enumerated types
+ *
+ * TODO - get rid of this and use pure trait based enumerations
  */
 abstract class Enumeration {
 
